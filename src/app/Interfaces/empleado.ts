@@ -1,0 +1,18 @@
+export interface Empleado {
+    id:number,
+    Nombres:string,
+    Apellidos:string,
+    Genero:string,
+    EstadoCivil:string,
+    FechaNacimiento:string,
+    Edad:number,
+    DPI:string,
+    NIT:string,
+    AfiliacionesIGSS:string,
+    AfiliacionesIRTRA:string,
+    Pasaporte:string,
+    Direccion:string,
+    SalarioBase:number,
+    Bonificaciones:number,
+    Descuentos:number,
+}

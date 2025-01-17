@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Empleado } from '../Interfaces/empleado';
 
@@ -15,16 +15,16 @@ export class EmpleadoService {
 
   constructor(private http:HttpClient) { }
 
-  getList():Observable<Empleado>{
-    return this.http.get<Empleado>(`${this.apiUrl}lista`);
+  getList():Observable<Empleado[]>{
+    return this.http.get<Empleado[]>(`${this.apiUrl}lista`);
   }
 
-  add(modelo:Empleado):Observable<Empleado>{
-    return this.http.post<Empleado>(`${this.apiUrl}guardar`,modelo);
+  add(modelo:Empleado):Observable<Empleado[]>{
+    return this.http.post<Empleado[]>(`${this.apiUrl}guardar`,modelo);
   }
 
-  update(id:number,modelo:Empleado):Observable<Empleado>{
-    return this.http.put<Empleado>(`${this.apiUrl}actualizar/${id}`,modelo);
+  update(id:number,modelo:Empleado):Observable<Empleado[]>{
+    return this.http.put<Empleado[]>(`${this.apiUrl}actualizar/${id}`,modelo);
   }
 
   delete(id:number):Observable<void>{

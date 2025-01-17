@@ -9,7 +9,6 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { MatTableModule} from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule} from '@angular/material/input';
@@ -26,6 +25,9 @@ import { MatIconModule} from '@angular/material/icon';
 import { MatDialogModule} from '@angular/material/dialog';
 
 import { MatGridListModule} from '@angular/material/grid-list';
+
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DataSource } from '@angular/cdk/table';
 
 import { AppComponent } from './app.component';
 
@@ -52,7 +54,6 @@ import { AppComponent } from './app.component';
     MatIconModule,
     MatDialogModule,
     MatGridListModule,
-    MatTableDataSource
   ],
   providers: [],       
   bootstrap: [AppComponent] 

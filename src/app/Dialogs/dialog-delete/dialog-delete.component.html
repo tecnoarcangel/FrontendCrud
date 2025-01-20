@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>Eliminar Empleado</h1>
+<div mat-dialog-content>
+    ¿Desea eliminar el emprelado "{{dataEmpleado?.nombres}} {{dataEmpleado?.apellidos}}"?
+</div>
+<div mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close color="warn">No, volver</button>
+    <button mat-raised-button color="primary"
+    (click)="confirmar()"
+    cdkFocusInitial
+    >
+        Si, eliminar
+    </button>
+</div>

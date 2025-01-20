@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import { HttpClientModule } from '@angular/common/http';
 
 import { Empleado } from '../../Interfaces/empleado';
@@ -15,6 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select'; 
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {provideNativeDateAdapter} from '@angular/material/core';
 
 import {
   MatDialog,
@@ -51,14 +53,17 @@ export const MY_DATE_FORMATS = {
     MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
-    MatSelectModule
+    MatSelectModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatDatepickerModule
   ],
   templateUrl: './dialog-add-edit.component.html',
   styleUrls: ['./dialog-add-edit.component.css'],
-  providers: [EmpleadoService, {provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS}]
+  providers: [EmpleadoService, provideNativeDateAdapter(), {provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS}]
 })
 
-export class DialogAddEditComponent {
+export class DialogAddEditComponent implements OnInit {
 
   formEmpleado: FormGroup;
   tituloAccion: string = "Nuevo";
@@ -70,31 +75,27 @@ export class DialogAddEditComponent {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private empleadoService: EmpleadoService,
+    @Inject(MAT_DIALOG_DATA) public dataEmpleado: Empleado | null
   ) {
+    //console.log("Empleado recibido:", dataEmpleado);
     this.formEmpleado = this.fb.group({
       //id: [0],
-      Nombres: ['', Validators.required],
-      Apellidos: ['', Validators.required],
-      Genero: ['', Validators.required],
-      EstadoCivil: ['', Validators.required],
-      FechaNacimiento: ['', Validators.required],
-      Edad: [0, Validators.required],
-      DPI: ['', Validators.required],
-      NIT: ['', Validators.required],
-      AfiliacionesIGSS: ['', Validators.required],
-      AfiliacionesIRTRA: ['', Validators.required],
-      Pasaporte: ['', Validators.required],
-      Direccion: ['', Validators.required],
-      SalarioBase: [0, Validators.required],
-      Bonificaciones: [0, Validators.required],
-      Descuentos: [0, Validators.required]
+      nombres: ['', Validators.required],
+      apellidos: ['', Validators.required],
+      genero: ['', Validators.required],
+      estadoCivil: ['', Validators.required],
+      fechaNacimiento: ['', Validators.required],
+      edad: [0, Validators.required],
+      dpi: ['', Validators.required],
+      nit: ['', Validators.required],
+      afiliacionIGSS: ['', Validators.required],
+      afiliacionIRTRA: ['', Validators.required],
+      pasaporte: ['', Validators.required],
+      direccion: ['', Validators.required],
+      salarioBase: [0, Validators.required],
+      bonificaciones: [0, Validators.required],
+      descuentos: [0, Validators.required]
     });
-
-    // this.empleadoService.getList().subscribe({
-    //   next: (data) => {
-        
-    //   },error: (e) => {}
-    // });
     
   }
 
@@ -107,8 +108,82 @@ export class DialogAddEditComponent {
   }  
 
   addEditEmpleado() {
-    console.log(this.formEmpleado);
     console.log(this.formEmpleado.value);
+
+    const modelo: Empleado = {
+      id: 0,
+      nombres: this.formEmpleado.value.nombres,
+      apellidos: this.formEmpleado.value.apellidos,
+      genero: this.formEmpleado.value.genero,
+      estadoCivil: this.formEmpleado.value.estadoCivil,
+      fechaNacimiento: moment (this.formEmpleado.value.fechaNacimiento).format('DD/MM/YYYY'),
+      edad: this.formEmpleado.value.edad,
+      dpi: this.formEmpleado.value.dpi,
+      nit: this.formEmpleado.value.nit,
+      afiliacionIGSS: this.formEmpleado.value.afiliacionIGSS,
+      afiliacionIRTRA: this.formEmpleado.value.afiliacionIRTRA,
+      pasaporte: this.formEmpleado.value.pasaporte,
+      direccion: this.formEmpleado.value.direccion,
+      salarioBase: this.formEmpleado.value.salarioBase,
+      bonificaciones: this.formEmpleado.value.bonificaciones,
+      descuentos: this.formEmpleado.value.descuentos
+    }
+
+    if(this.dataEmpleado == null){
+
+      this.empleadoService.add(modelo).subscribe({
+        next: (data) => {
+          this.mostrarAlerta('Empleado agregado correctamente', 'Cerrar');
+          this.dialogoReferencia.close("creado");
+        },
+        error: (e) => {
+          this.mostrarAlerta('Error al agregar empleado', 'Cerrar');
+        }
+      })
+
+    }else{
+
+      this.empleadoService.update(this.dataEmpleado.id, modelo).subscribe({
+        next: (data) => {
+          this.mostrarAlerta('Empleado actualizado correctamente', 'Cerrar');
+          this.dialogoReferencia.close("editado");
+        },
+        error: (e) => {
+          this.mostrarAlerta('Error al actualizar empleado', 'Cerrar');
+        }
+      })
+
+    }
+  
+  }
+
+  ngOnInit(): void {
+
+    //console.log("Datos recibidos en el diálogo:", this.dataEmpleado); 
+    
+    if(this.dataEmpleado){
+
+      this.formEmpleado.patchValue({
+        nombres: this.dataEmpleado.nombres,
+        apellidos: this.dataEmpleado.apellidos,
+        genero: this.dataEmpleado.genero,
+        estadoCivil: this.dataEmpleado.estadoCivil,
+        fechaNacimiento: this.dataEmpleado.fechaNacimiento ? moment(this.dataEmpleado.fechaNacimiento, 'YYYY-MM-DD').toDate() : null,
+        edad: this.dataEmpleado.edad,
+        dpi: this.dataEmpleado.dpi,
+        nit: this.dataEmpleado.nit,
+        afiliacionIGSS: this.dataEmpleado.afiliacionIGSS,
+        afiliacionIRTRA: this.dataEmpleado.afiliacionIRTRA,
+        pasaporte: this.dataEmpleado.pasaporte,
+        direccion: this.dataEmpleado.direccion,
+        salarioBase: this.dataEmpleado.salarioBase,
+        bonificaciones: this.dataEmpleado.bonificaciones,
+        descuentos: this.dataEmpleado.descuentos
+      })
+
+      this.tituloAccion = "Editar";
+      this.botonAccion = "Actualizar";
+    }
   }
 
 }

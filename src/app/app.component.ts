@@ -17,6 +17,9 @@ import { DialogAddEditComponent } from './Dialogs/dialog-add-edit/dialog-add-edi
 import { Empleado } from './Interfaces/empleado';
 import { EmpleadoService } from './Services/empleado.service';
 
+import { MatSnackBar } from '@angular/material/snack-bar';
+import {DialogDeleteComponent} from './Dialogs/dialog-delete/dialog-delete.component';
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -42,7 +45,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   constructor(
     private empleadoService:EmpleadoService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private snackBar: MatSnackBar
   ){
     
    }
@@ -65,7 +69,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   mostrarEmpleados()  {
     this.empleadoService.getList().subscribe({
       next:(dataResponse) => {
-        console.log(dataResponse);
+        //console.log(dataResponse);
         this.dataSource.data = dataResponse;
       },
       error:(e) => {}
@@ -74,12 +78,57 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   dialogoNuevoEmpleado() {
     this.dialog.open(DialogAddEditComponent, {
+      disableClose: true,
       autoFocus: false,
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      height: '500px',
+      //height: '500px',
       width: '350px',
+    }).afterClosed().subscribe(resultado => {
+      if (resultado === "creado") {
+        this.mostrarEmpleados();
+      }
+    })
+  }
+
+  dialogoEditarEmpleado(dataEmpleado:Empleado) {
+    this.dialog.open(DialogAddEditComponent, {
+      disableClose: true,
+      autoFocus: false,
+      //height: '500px',
+      width: '350px',
+      data:dataEmpleado
+    }).afterClosed().subscribe(resultado => {
+      if (resultado === "editado") {
+        this.mostrarEmpleados();
+      }
+    })
+  }
+
+  mostrarAlerta(msg: string, accion: string) {
+    this.snackBar.open(msg, accion, {
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      duration: 3000
     });
+  }  
+
+  dialogoEliminarEmpleado(dataEmpleado:Empleado) {
+    this.dialog.open(DialogDeleteComponent, {
+      disableClose: true,
+      autoFocus: false,
+      data:dataEmpleado
+    }).afterClosed().subscribe(resultado => {
+      if (resultado === "eliminar") {
+        this.empleadoService.delete(dataEmpleado.id).subscribe({
+          next: (data) => {
+            this.mostrarAlerta('Empleado eliminado correctamente', 'Cerrar');
+            this.mostrarEmpleados();
+          },
+          error: (e) => {
+            this.mostrarAlerta('Error al eliminar empleado', 'Cerrar');
+          }
+        })
+      }
+    })
   }
 
 }
